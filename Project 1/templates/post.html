@@ -22,7 +22,10 @@
       rel="stylesheet"
     />
     <!-- Bulma CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
+    />
 
     <!-- Javascript  -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -63,96 +66,58 @@
       }
     </style>
     <script>
-      $(document).ready(function () {
-        if (localStorage.getItem("username")) {
-          let username = localStorage.getItem("username");
-          let password = localStorage.getItem("password");
-
-          $("#user-info").empty();
-
-          let temp_html = `<li class="nav-item dropdown">
-                            <a
-                            class="nav-link dropdown-toggle"
-                            href="#"
-                            role="button"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                            >
-                            ${username}
-                            <!-- <i class="fa fa-user" aria-hidden="true"></i> -->
-                            </a>
-                            <ul class="dropdown-menu">
-                            <li>
-                                <a class="dropdown-item" href="user_info.html"
-                                >My Profile</a
-                                >
-                            </li>
-                            <li>
-                                <a class="dropdown-item" onclick="logout()"
-                                >Log out</a
-                                >
-                            </li>
-                            </ul>
-                        </li>`;
-
-          $("#user-info").append(temp_html);
-
-        load_page();
+      
+      function num2str(count) {
+        if (count > 10000) {
+          return parseInt(count / 1000) + "k";
         }
-      });
-      function logout() {
-        localStorage.clear();
-        window.location.reload();
+        if (count > 500) {
+          return parseInt(count / 100) / 10 + "k";
+        }
+        if (count == 0) {
+          return "";
+        }
+        return count;
       }
-      function load_page() {
-        $.ajax({
-            type: "GET",
-            url: "/",
-            data: {},
+      function toggle_like(post_id, type) {
+        console.log(post_id, type);
+        let $a_like = $(`#${post_id} a[aria-label='heart']`);
+        let $i_like = $a_like.find("i");
+        if ($i_like.hasClass("fa-heart")) {
+          $.ajax({
+            type: "POST",
+            url: "/update_like",
+            data: {
+              post_id_give: post_id,
+              type_give: type,
+              action_give: "unlike",
+            },
             success: function (response) {
-                let post_list = response["list"];
-
-                console.log(post_list)
-
-                // let num = Math.min(10, post_list.length);
-                let num = post_list.length;
-                $('#posts').empty();
-
-                for (let i = 0; i < num; i++) {
-                    // TODO: specific structure of the post
-                    if (i % 2 == 0) {
-                        let temp_html = `<div class="row g-2">
-                            <div class="col">
-                              <img
-                                src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(108).webp"
-                                alt="image 1"
-                                class="w-100 rounded-3"
-                              />
-                              <a class="post-title" href="/post_name.html"
-                                >Post Title</a
-                              >
-                            </div>`
-                        $('#posts').append(temp_html);
-                    } else {
-                        let temp_html = `<div class="col">
-                            <img
-                              src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(114).webp"
-                              alt="image 1"
-                              class="w-100 rounded-3"
-                            />
-                            <a class="post-title" href="/post_name.html"
-                              >Post Title</a
-                            >
-                          </div>
-                        </div>`
-                        $('#posts').append(temp_html);
-                    }
-                }
-            }
-        });
+              console.log("unlike");
+              $i_like.addClass("fa-heart-o").removeClass("fa-heart");
+              $a_like.find("span.like-num").text(num2str(response["count"]));
+            },
+          });
+        } else {
+          $.ajax({
+            type: "POST",
+            url: "/update_like",
+            data: {
+              post_id_give: post_id,
+              type_give: type,
+              action_give: "like",
+            },
+            success: function (response) {
+              console.log("like");
+              $i_like.addClass("fa-heart").removeClass("fa-heart-o");
+              $a_like.find("span.like-num").text(num2str(response["count"]));
+            },
+          });
+        }
       }
+
     </script>
-  </head>
+    </head>
 
   <body>
     <section class="h-100 gradient-custom-2">
@@ -161,7 +126,7 @@
           <div class="col col-lg-9 col-xl-7">
             <nav class="navbar navbar-expand-lg bg-light">
               <div class="container-fluid">
-                <a class="navbar-brand" href="/index.html">Home</a>
+                <a class="navbar-brand" href="/">Home</a>
                 <button
                   class="navbar-toggler"
                   type="button"
@@ -189,51 +154,85 @@
                     </button>
                   </form>
                   <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="user-info">
-                    <a class="nav-link" href="/login_page.html">Login</a>
+                    <li class="nav-item dropdown">
+                      <a
+                        class="nav-link dropdown-toggle"
+                        href="#"
+                        role="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        {{ post_id.username }}
+                        <!-- <i class="fa fa-user" aria-hidden="true"></i> -->
+                      </a>
+                      <ul class="dropdown-menu">
+                        <li>
+                          <a
+                            class="dropdown-item"
+                            href="/user/{{ post_id.username }}"
+                            >My Profile</a
+                          >
+                        </li>
+                        <li>
+                          <a class="dropdown-item" onclick="logout()"
+                            >Log out</a
+                          >
+                        </li>
+                      </ul>
+                    </li>
                   </ul>
+                
                 </div>
               </div>
             </nav>
             <div class="card">
               <div class="card-body p-4 text-black">
+                <!-- POST STARTS HERE -->
                 <div id="posts">
-                  <!-- POST STARTS HERE -->
+                  
                   <div class="box">
                     <article class="media">
-                      <div class="media-left">
-                        
-                      </div>
+                      <div class="media-left"></div>
                       <div class="media-content">
-                        <strong>Location</strong>
-                        <br>
-                         <small>Specific Location</small>
+                        <strong>Title</strong>
+                        <br />
+                        <small>Location</small>
                         <figure class="image is-256x256">
-                          <img src="../static/post_images/경복궁.jpg" alt="Image">
+                          <img
+                            src="../static/post_images/경복궁.jpg"
+                            alt="Image"
+                          />
                         </figure>
                         <div class="content">
                           <p>
-                            <strong>John Smith</strong> <small>@johnsmith</small> <small>31m</small>
-                            <br>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus turpis.
+                            <strong>John Smith</strong>
+                            <small>@johnsmith</small> <small>31m</small>
+                            <br />
+                            Lorem ipsum dolor sit amet, consectetur adipiscing
+                            elit. Aenean efficitur sit amet massa fringilla
+                            egestas. Nullam condimentum luctus turpis.
                           </p>
                         </div>
                         <nav class="level is-mobile">
                           <div class="level-left">
+                            <a
+                              class="level-item is-sparta"
+                              aria-label="heart"
+                              onclick="toggle_like('', 'heart')"
+                            >
+                              <span class="icon is-small"
+                                ><i
+                                  class="fa fa-heart"
+                                  aria-hidden="true"
+                                ></i></span
+                              >&nbsp;<span class="like-num">2.7k</span>
+                            </a>
                             <a class="level-item" aria-label="reply">
                               <span class="icon is-small">
-                                <i class="fas fa-reply" aria-hidden="true"></i>
-                              </span>
+                                <i class="fa fa-comment" aria-hidden="true"></i>
+                              </span>&nbsp;<span class="like-num">2.7k</span>
                             </a>
-                            <a class="level-item" aria-label="retweet">
-                              <span class="icon is-small">
-                                <i class="fas fa-retweet" aria-hidden="true"></i>
-                              </span>
-                            </a>
-                            <a class="level-item" aria-label="like">
-                              <span class="icon is-small">
-                                <i class="fas fa-heart" aria-hidden="true"></i>
-                              </span>
-                            </a>
+                            
                           </div>
                         </nav>
                       </div>

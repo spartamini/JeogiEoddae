@@ -28,7 +28,6 @@ def home():
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         user_info = db.users.find_one({"username": payload["id"]})
-        print(user_info)
         return render_template('index.html', user_info=user_info)
     except jwt.ExpiredSignatureError:
         return redirect(url_for("login", msg="로그인 시간이 만료되었습니다."))
@@ -170,12 +169,13 @@ def update_profile():
 def add_post():
     token_receive = request.cookies.get('mytoken')
     try:
+        # TODO: add name to doc
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         username_receive = request.form['username_give']
         location_receive = request.form['location_give']
         title_receive = request.form['title_give']
         desc_receive = request.form['desc_give']
-        time_receive = f"{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}"
+        time_receive = request.form['time_give']
 
         image = request.files["image_give"]
 
@@ -191,7 +191,6 @@ def add_post():
             'location': location_receive,
             'title': title_receive,
             'desc': desc_receive,
-            'like_dict': {},
             'image': filename,
             'time': time_receive
         }
@@ -222,17 +221,18 @@ def post_by_user():
 
     return jsonify({'post_list': post_list})
 
-@app.route('/', methods=['GET'])
+@app.route('/all-posts', methods=['GET'])
 def get_all_posts():
     token_receive = request.cookies.get('mytoken')
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         # 포스팅 목록 받아오기
-        posts = list(db.posts.find({}).sort("date", -1).limit(20))
+        posts = list(db.post.find({}).sort("time", -1).limit(20))
         for post in posts:
             post["_id"] = str(post["_id"])
-            post["count_heart"] = db.likes.count_documents({"post_id": post["_id"], "type": "heart"})
-            post["heart_by_me"] = bool(db.likes.find_one({"post_id": post["_id"], "type": "heart", "username": payload['id']}))
+            post["count_heart"] = db.likes.count_documents({"post_id": post["_id"]})
+            post["heart_by_me"] = bool(db.likes.find_one({"post_id": post["_id"], "username": payload['id']}))
+            post["count_comment"] = db.comments.count_documents({"post_id": post["_id"]})
         return jsonify({"result": "success", "msg": "포스팅을 가져왔습니다.", "posts": posts})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         return redirect(url_for("home"))
@@ -313,14 +313,13 @@ def update_like():
         action_receive = request.form["action_give"]
         doc = {
             "post_id": post_id_receive,
-            "username": user_info["username"],
-            "type": type_receive
+            "username": user_info["username"]
         }
         if action_receive =="like":
             db.likes.insert_one(doc)
         else:
             db.likes.delete_one(doc)
-        count = db.likes.count_documents({"post_id": post_id_receive, "type": type_receive})
+        count = db.likes.count_documents({"post_id": post_id_receive})
         return jsonify({"result": "success", 'msg': 'updated', "count": count})
 
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
