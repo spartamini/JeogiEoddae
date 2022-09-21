@@ -1,0 +1,175 @@
+<!-- credit: mdbootstrap.com -->
+<!-- link: https://mdbootstrap.com/docs/standard/extended/profiles/ -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+
+    <title>저기 어때 - 프로필 변경</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        font-family: "Gowun Dodum", sans-serif;
+      }
+      .gradient-custom-2 {
+        /* fallback for old browsers */
+        background: #fbc2eb;
+
+        /* Chrome 10-25, Safari 5.1-6 */
+        background: -webkit-linear-gradient(
+          to right,
+          rgba(251, 194, 235, 1),
+          rgba(166, 193, 238, 1)
+        );
+
+        /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+        background: linear-gradient(
+          to right,
+          rgba(251, 194, 235, 1),
+          rgba(166, 193, 238, 1)
+        );
+      }
+    </style>
+    <script>
+      $(document).ready(function () {
+
+      });
+
+      function update_profile() {
+        let firstname = $('#firstName').val();
+        let lastname = $('#lastName').val();
+        let email = $('#email').val();
+        let username = "{{username}}"
+
+        // TODO: image
+
+        let pw = $('#inputPassword').val();
+        let pw2 = $('#inputPassword2').val();
+
+        if (pw == pw2) { 
+               $.ajax({
+            type: "POST",
+            url: "/update-profile",
+            data: { 
+              username_give: username, firstname_give: firstname, lastname_give: lastname, 
+              email_give: email, password_give:pw
+            },
+            success: function (response) {
+            alert(response["msg"]);
+            if (response["msg"] == "Profile Successfully Updated!") {
+                if (firstname.length > 0) {
+                  localStorage.setItem("firstname", firstname);
+                }
+                if (lastname.length > 0) {
+                  localStorage.setItem("lastname", lastname);
+                }
+                if (email.length > 0) {
+                  localStorage.setItem("email", email);
+                }
+                if (pw.length > 0) {
+                  localStorage.setItem("password", pw);
+                }
+                window.location.replace("/user/{{username}}");
+            } else {
+                window.location.reload();
+            }
+            
+            // TODO: reloads the window and leads to main page
+            },
+        });
+        } else {
+            alert("Please enter the same password!");
+            window.location.reload();
+        }
+  
+    }
+
+      
+    </script>
+  </head>
+
+  <body>
+    <section class="h-100 gradient-custom-2">
+      <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+          <div class="col col-lg-9 col-xl-7">
+            <div class="row g-5">
+              <div class="card">
+                <div class="card-body p-4 text-black">
+                <div class="col-md-7 col-lg-8">
+                  <h4 class="mb-3">Edit Profile</h4>
+                  <form class="needs-validation" novalidate="">
+                    <div class="row g-3">
+                      <div class="col-sm-6">
+                        <label for="firstName" class="form-label">First name</label>
+                        <input type="text" class="form-control" id="firstName" placeholder="" value="" required="">
+                        <div class="invalid-feedback">
+                          Valid first name is required.
+                        </div>
+                      </div>
+          
+                      <div class="col-sm-6">
+                        <label for="lastName" class="form-label">Last name</label>
+                        <input type="text" class="form-control" id="lastName" placeholder="" value="" required="">
+                        <div class="invalid-feedback">
+                          Valid last name is required.
+                        </div>
+                      </div>
+          
+                      
+          
+                      <div class="col-12">
+                        <label for="email" class="form-label">Email <span class="text-muted">(Optional)</span></label>
+                        <input type="email" class="form-control" id="email" placeholder="you@example.com">
+                      </div>
+                      <div class="col-12"></div>
+                      <label for="lastName" class="form-label">Profile Picture</label>
+                      <div class="input-group mb-3">
+                        <label class="input-group-text" for="inputGroupFile01">Upload</label>
+                        <input type="file" class="form-control" id="inputGroupFile01">
+                      </div>
+                      </div>
+                      <div class="col-12">
+                        <label for="inputPassword" class="col-sm-2 col-form-label">Password</label>
+
+                          <input type="password" class="form-control" id="inputPassword">
+                        </div>
+                        <div class="col-12">
+                        <label for="inputPassword" >Re-enter Password</label>
+
+                          <input type="password" class="form-control" id="inputPassword2">
+
+                          </div>
+                          
+                      <button type="button" class="btn btn-primary" onclick="update_profile()">Update Profile</button>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  
