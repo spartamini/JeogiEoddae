@@ -1,0 +1,143 @@
+<!-- credit: mdbootstrap.com -->
+<!-- link: https://mdbootstrap.com/docs/standard/extended/profiles/ -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <!-- Bootstrap CSS -->
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+    crossorigin="anonymous"> -->
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <link
+      href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Javascript  -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+
+    <title>저기 어때</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        font-family: "Gowun Dodum", sans-serif;
+      }
+      .gradient-custom-2 {
+        /* fallback for old browsers */
+        background: #fbc2eb;
+
+        /* Chrome 10-25, Safari 5.1-6 */
+        background: -webkit-linear-gradient(
+          to right,
+          rgba(251, 194, 235, 1),
+          rgba(166, 193, 238, 1)
+        );
+
+        /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+        background: linear-gradient(
+          to right,
+          rgba(251, 194, 235, 1),
+          rgba(166, 193, 238, 1)
+        );
+      }
+    </style>
+    <script>
+        $(document).ready(function () {});
+
+        function login_attempt() {
+          let id = $("#floatingInput").val();
+          let pw = $("#floatingPassword").val();
+  
+          $.ajax({
+            type: "POST",
+            url: "/login",
+            data: { id_give: id, pw_give: pw },
+            success: function (response) {
+              console.log(response)
+              if (response["msg"][0] == "Login Success!") {
+                localStorage.setItem("username", id)
+                localStorage.setItem("password", pw)
+                localStorage.setItem("firstname", response["msg"][1])
+                localStorage.setItem("lastname", response["msg"][2])
+                localStorage.setItem("email", response["msg"][3])
+                localStorage.setItem("location", response["msg"][4])
+                window.location.replace("/");
+                // reload to main page
+              } else {
+                alert(response["msg"]);
+                window.location.reload();
+                // reloads the window
+              }
+            },
+          });
+        }
+    </script>
+  </head>
+
+  <body>
+    <section class="h-100 gradient-custom-2">
+      <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+          <div class="col col-lg-9 col-xl-7">
+            
+            <div class="card">
+              <div class="card-body p-4 text-black">
+                <div id="posts">
+                    <h1 class="display-5 fw-bold">Login Page</h1>
+                    <div class="m-4 m-lg-5">
+                      <div class="form-floating mb-3">
+                        <input
+                          type="email"
+                          class="form-control"
+                          id="floatingInput"
+                          placeholder="name@example.com"
+                        />
+                        <label for="floatingInput">Username</label>
+                      </div>
+                      <div class="form-floating">
+                        <input
+                          type="password"
+                          class="form-control"
+                          id="floatingPassword"
+                          placeholder="Password"
+                        />
+                        <label for="floatingPassword">Password</label>
+                        <br />
+                        <a class="btn btn-primary btn-lg" onclick="login_attempt()">Login</a>
+                      </div>
+                      <br />
+                      <p class="fs-4">Click below to sign up!</p>
+                      <a class="btn btn-primary btn-lg" href="/signup_page.html">Create new account</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>
