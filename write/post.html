@@ -19,7 +19,6 @@
             crossorigin="anonymous"></script>
 
     <!-- Bootstrap core CSS -->
-    <link href="../style/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
 
     <style>
@@ -57,48 +56,54 @@
             flex-direction: row;
             justify-content: center;
             align-items: center;
+
+        }
+
+        .modal-content {
+            width: 600px;
+            max-width: 80%;
         }
     </style>
     <script>
-        $(document).ready(function () {
-            bsCustomFileInput.init()
-        })
+        let num = {{ doc.num }}
 
-        function edit_post() {
-            let title = $('#edit_title').val()
-            let file = $('#edit_file')[0].files[0]
-            let post = $("#edit_post").val()
-            let form_data = new FormData()
-            form_data.append("file_give", file)
-            form_data.append("title_give", title)
-            form_data.append("post_give", post)
+            $(document).ready(function () {
+                bsCustomFileInput.init()
+            })
 
-            $.ajax({
-                type: "POST",
-                url: "/post-edit",
-                data: form_data,
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    if (response["result"] == "success") {
-                        alert(response["msg"])
-                        window.location.href = "/post/${num}"
-                    }
+
+        function edit_confirm() {
+            if (post_id == {{ doc.post_id }} && user_name == {{ doc.user_name }}) {
+                if (confirm("수정하시겠습니까?")) {
+                    window.location.href = `/post-edit?num_give=${num}`;
+                } else {
+                    return;
                 }
-            });
+            } else {
+                alert("권한이 없습니다.");
+            }
         }
 
-        function delete_post(num) {
-            $.ajax({
-                type: "POST",
-                url: "/post-delete",
-                data: {'num_give':num}
-                success: function (response) {
-                    alert(response["msg"])
-                    window.location.href = "/"
+
+        function delete_post() {
+            if (post_id == {{ doc.post_id }} && user_name == {{ doc.user_name }}) {
+                if (confirm("삭제하시겠습니까?")) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/post-delete",
+                        data: {num_give: num},
+                        success: function (response) {
+                            alert(response["msg"])
+                            window.location.href = "/"
+                        }
+                    });
+                    ;
+                } else {
+                    return;
                 }
-            });
+            } else {
+                alert("권한이 없습니다.");
+            }
         }
 
 
@@ -123,7 +128,7 @@
 
     <h3>
         {{ doc.title }}
-        <small class="text-muted">written by {{ doc.user_name }}'</small>
+        <small class="text-muted">written by {{ doc.user_name }}</small>
     </h3>
 
     <div class="row align-items-md-stretch">
@@ -167,7 +172,7 @@
 
                             // 인포윈도우로 장소에 대한 설명을 표시합니다
                             var infowindow = new kakao.maps.InfoWindow({
-                                content: '<div style="width:150px;text-align:center;padding:6px 0;">우리회사</div>'
+                                content: '<div style="width:150px;text-align:center;padding:6px 0;">{{ doc.title }}</div>'
                             });
                             infowindow.open(map, marker);
 
@@ -181,77 +186,12 @@
         <div>
             <p>{{ doc.post }}</p>
         </div>
-        <div class="modal" id="edit_post">
-            <div class="modal-background" onclick='$("#modal-edit").removeClass("is-active")'></div>
-            <div class="modal-content">
-                <div class="box">
-                    <article class="media">
-                        <div class="media-content">
-                            <div class="field">
-                                <label class="label" for="edit_title">여행지</label>
-
-                                <p class="control">
-
-                                    <input id="edit_title" class="input"
-                                           placeholder="여행지를 수정해주세요" value="{{ post_info.title }}">
-                                </p>
-                            </div>
-                            <div class="field">
-                                <label class="label" for="edit_file">프로필 사진</label>
-
-                                <div class="control is-expanded">
-                                    <div class="file has-name">
-                                        <label class="file-label" style="width:100%">
-                                            <input id="edit_file" class="file-input" type="file"
-                                                   name="resume">
-                                            <span class="file-cta"><span class="file-icon"><i
-                                                    class="fa fa-upload"></i></span>
-                                <span class="file-label">파일 선택</span>
-                            </span>
-                                            <span id="file-name" class="file-name"
-                                                  style="width:100%;max-width:100%">{{ post_info.image }}</span>
-                                        </label>
-                                    </div>
-
-                                </div>
-                            </div>
-                            <div class="field">
-                                <label class="label" for="edit_post">여행지 정보</label>
-
-                                <p class="control">
-
-                        <textarea id="edit_post" class="textarea"
-                                  placeholder="여행지 정보를 수정해주세요">{{ post_info.post }}</textarea>
-                                </p>
-                            </div>
-                            <nav class="level is-mobile">
-                                <div class="level-left">
-
-                                </div>
-                                <div class="level-right">
-                                    <div class="level-item">
-                                        <a class="button is-sparta" onclick="edit_post()">업데이트</a>
-                                    </div>
-                                    <div class="level-item">
-                                        <a class="button is-sparta is-outlined"
-                                           onclick='$("#modal-edit").removeClass("is-active")'>취소</a>
-                                    </div>
-                                </div>
-                            </nav>
-                        </div>
-                    </article>
-                </div>
-            </div>
-            <button class="modal-close is-large" aria-label="close"
-                    onclick='$("#modal-edit").removeClass("is-active")'></button>
-        </div>
         <div>
-            {% if status %}
-                <button class="btn btn-primary btn-lg" type="button" onclick='$("#modal-edit").addClass("is-active")'>
-                    수정하기
-                </button>
-                <button class="btn btn-primary btn-lg" type="button" onclick="delete_post">삭제하기</button>
-            {% endif %}
+            <button class="btn btn-primary btn-lg" type="button" onclick="edit_confirm()">
+                수정하기
+            </button>
+            <button class="btn btn-primary btn-lg" type="button" onclick="delete_post()">삭제하기
+            </button>
         </div>
     </div>
 
@@ -260,7 +200,7 @@
             <textarea placeholder="댓글을 남겨주세요." id="post"></textarea>
             <button type="button" class="btn btn-outline-danger" onclick="like">좋아요</button>
             <button class="btn btn-primary btn-lg" type="button" onclick="comment">댓글 남기기</button>
-            <button class="btn btn-primary btn-lg" type="button" onclick="window.location.href'/'">돌아가기</button>
+            <button class="btn btn-primary btn-lg" type="button" onclick="window.location.href = '/'">돌아가기</button>
         </div>
     </div>
     <div>

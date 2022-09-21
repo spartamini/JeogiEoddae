@@ -15,26 +15,30 @@ from datetime import datetime
 def write():
     return render_template('write.html')
 
-@app.route('/post/<num>')
-def post(num):
-    information = db.jeogi.find_one({'num':'num_give'})
+@app.route('/post')
+def post():
+    num_receive = request.args.get("num_give")
+    information = db.jeogi.find_one({'num':int(num_receive)})
     title = information['title']
     file = information['file']
     map = information['map']
     post = information['post']
+    #user_name = information['user_name']
+    post_id = str(information["_id"])
 
     doc = {
+        'post_id':post_id,
         'title':title,
         'file':file,
         'map':map,
-        'post':post
+        'post':post,
+        #'user_name':user_name
     }
 
-
-    return render_template("post.html", num=num, result=doc)
+    return render_template("post.html", doc=doc)
 
 @app.route('/write', methods=['POST'])
-def save_diary():
+def save_post():
     #user_info = db.jeogi.find_one({"user_name": payload["id"]})
     title_receive = request.form['title_give']
     post_receive = request.form['post_give']
@@ -66,24 +70,6 @@ def save_diary():
 
     db.jeogi.insert_one(doc)
     return jsonify({'msg': '저장 완료!'})
-
-@app.route('/post-edit', methods=['POST'])
-def edit_post():
-    title_receive = request.form["title_give"]
-    post_receive = request.form["post_give"]
-    new_doc = {
-        "title": title_receive,
-        "post": post_receive
-    }
-    if 'file_give' in request.files:
-        file = request.files["file_give"]
-        filename = f'file-{mytime}'
-        extension = file.filename.split('.')[-1]
-        file_path = f'static/{filename}.{extension}'
-        file.save(file_path)
-        new_doc["profile_pic"] = filename
-    db.jeogi.update_one({'username': payload['id']}, {'$set':new_doc})
-    return jsonify({"result": "success", 'msg': '포스트 수정 완료!'})
 
 @app.route('/post-delete', methods=['POST'])
 def delete_post():
