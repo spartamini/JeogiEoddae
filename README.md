@@ -16,5 +16,6 @@ Project (2022.09.19~2022.09.222)
 
 #### Contributors
 ```
- 항해99 first Project입니다. 
+ 항해99 first Project입니다.
+ 이민규(github/Ming-gry), 심민기(github/shiminki), 김성호(github/Dim225)
 ```
