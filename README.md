@@ -8,6 +8,8 @@ Project (2022.09.19~2022.09.222)
  사용자들이 실제로 다녀온 여행지 정보 공유!
  ```
  
+ <img src="https://img.shields.io/badge/Scss-green?style=flat&logo=Sass&logoColor=CC6699"/>
+ 
  #### Tech Requirement (Tech Stack)
  ```
  HTML5 / CSS3 /Javascript
