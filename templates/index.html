@@ -110,6 +110,66 @@
         $.removeCookie('mytoken');
         window.location.reload();
       }
+      function sort_by_like() {
+        $.ajax({
+            type: "GET",
+            url: "/sort-like",
+            data: {},
+            success: function (response) {
+              let post_list = response["posts"];
+  
+              console.log(post_list);
+  
+              let num = post_list.length
+              $("#post-box").empty()
+              $("#post-box").append(`<button class="button" onclick="sort_by_like()">최신순</button>`)
+  
+              for (let i = 0; i < num; i++) {
+                let post = post_list[i]
+              let time_post = new Date(post["time"]);
+                let time_before = time2str(time_post);
+                let class_heart = post["heart_by_me"] ? "fa-heart" : "fa-heart-o";
+                let count_heart = num2str(post["count_heart"]);
+                
+              let temp_html = `<div class="box" id="${post["_id"]}">
+                
+                <article class="media">
+                    <div class="media-left"></div>
+                    <div class="media-content">
+                        <strong><a href="/post/${post["_id"]}">${post["title"]}</a></strong>
+                      <br />
+                      <small>${post["location"]}</small>
+                      <figure class="image is-200x200">
+                        <img
+                          src="../static/post_images/${post["image"]}"
+                          alt="Image"
+                        />
+                      </figure>
+                        <div class="content">
+                            <p>
+                                <small>@${post["username"]}</small> <small>${time_before}</small>
+                                <br>
+                                ${post["desc"]}
+                            </p>
+                        </div>
+                        <nav class="level is-mobile">
+                            <div class="level-left">
+                                <a class="level-item is-sparta" aria-label="heart" onclick="toggle_like('${post["_id"]}')">
+                                    <span class="icon is-small"><i class="fa ${class_heart}"
+                                        aria-hidden="true"></i></span>&nbsp;&nbsp;
+                                    <span class="like-num">${count_heart}</span>
+                                </a>
+                            </div>
+                        </nav>
+                    </div>
+                </article>
+            </div>`;
+             $("#post-box").append(temp_html)
+              }
+            },
+          });
+        }
+      
       function load_page() {
         $.ajax({
           type: "GET",
@@ -122,18 +182,21 @@
 
             let num = post_list.length
             $("#post-box").empty()
+            $("#post-box").append(`<button class="button" onclick="sort_by_like()">좋아요순</button>`)
 
             for (let i = 0; i < num; i++) {
               let post = post_list[i]
-              let heart = post['heart_by_me'] ? "fa-heart" : "fa-heart-o";
               let time_post = new Date(post["time"]);
-              let time_before = time2str(time_post);
-              let temp_html = `<div id="posts-${post["_id"]}>
-                <div class="box">
-                  <article class="media">
+                let time_before = time2str(time_post);
+                let class_heart = post["heart_by_me"] ? "fa-heart" : "fa-heart-o";
+                let count_heart = num2str(post["count_heart"]);
+                
+              let temp_html = `<div class="box" id="${post["_id"]}">
+                
+                <article class="media">
                     <div class="media-left"></div>
                     <div class="media-content">
-                      <strong><a href="/post/${post["_id"]}">${post["title"]}</a></strong>
+                        <strong><a href="/post/${post["_id"]}">${post["title"]}</a></strong>
                       <br />
                       <small>${post["location"]}</small>
                       <figure class="image is-200x200">
@@ -142,44 +205,62 @@
                           alt="Image"
                         />
                       </figure>
-                      <div class="content">
-                        <p>
-                          <strong><a href="/user/{{ user_info.username }}">${post["username"]}</a></strong>
-                           <small>${time_before}</small>
-                          <br />
-                          ${post["desc"]}
-                        </p>
-                      </div>
-                      <nav class="level is-mobile">
-                        <div class="level-left">
-                          <a
-                            class="level-item is-sparta"
-                            aria-label="heart"
-                            onclick="toggle_like('', 'heart')"
-                          >
-                            <span class="icon is-small"
-                              ><i
-                                class="fa ${heart}"
-                                aria-hidden="true"
-                              ></i></span
-                            >&nbsp;<span class="like-num">${post["count_heart"]}</span>
-                          </a>
-                          <a class="level-item" aria-label="reply">
-                            <span class="icon is-small">
-                              <i class="fa fa-comment" aria-hidden="true"></i>
-                            </span>&nbsp;<span class="like-num">${post["count_comment"]}</span>
-                          </a>
-                          
+                        <div class="content">
+                            <p>
+                                <small>@${post["username"]}</small> <small>${time_before}</small>
+                                <br>
+                                ${post["desc"]}
+                            </p>
                         </div>
-                      </nav>
+                        <nav class="level is-mobile">
+                            <div class="level-left">
+                                <a class="level-item is-sparta" aria-label="heart" onclick="toggle_like('${post["_id"]}')">
+                                    <span class="icon is-small"><i class="fa ${class_heart}"
+                                        aria-hidden="true"></i></span>&nbsp;&nbsp;
+                                    <span class="like-num">${count_heart}</span>
+                                </a>
+                            </div>
+                        </nav>
                     </div>
-                  </article>
-                </div>
-              </div>`
+                </article>
+            </div>`;
                 $("#post-box").append(temp_html)
             }
           },
         });
+      }
+      function toggle_like(post_id) {
+        let $a_like = $(`#${post_id} a[aria-label='heart']`);
+        let $i_like = $a_like.find("i");
+        if ($i_like.hasClass("fa-heart")) {
+          $.ajax({
+            type: "POST",
+            url: "/update_like",
+            data: {
+              post_id_give: post_id,
+              action_give: "unlike",
+            },
+            success: function (response) {
+              console.log("unlike");
+              $i_like.addClass("fa-heart-o").removeClass("fa-heart");
+              $a_like.find("span.like-num").text(num2str(response["count"]));
+            },
+          });
+        } else {
+          $.ajax({
+            type: "POST",
+            url: "/update_like",
+            data: {
+              post_id_give: post_id,
+              action_give: "like",
+            },
+            success: function (response) {
+              console.log("like");
+              $i_like.addClass("fa-heart").removeClass("fa-heart-o");
+              $a_like.find("span.like-num").text(num2str(response["count"]));
+            },
+          });
+        }
       }
       function post() {
         let username_give = "{{user_info.username}}"
@@ -407,6 +488,7 @@
                     </div>
                   </section>
                   <div id="post-box">
+
                   </div>
                 </div>
               </div>

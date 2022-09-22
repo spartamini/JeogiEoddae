@@ -210,7 +210,7 @@
               >
                 <div class="ms-4 mt-5 d-flex flex-column" style="width: 150px">
                   <img
-                    src="../static/profile_picture.png"
+                    src="{{ url_for('static', filename=user_info.profile_pic) }}"
                     alt="Generic placeholder image"
                     class="img-fluid img-thumbnail mt-4 mb-2"
                     style="width: 150px; z-index: 1"

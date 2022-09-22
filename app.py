@@ -15,7 +15,7 @@ from operator import attrgetter # used for sorting post by likes
 ca = certifi.where()
 
 client = MongoClient("mongodb+srv://test:sparta@cluster0.2iwz0e2.mongodb.net/?retryWrites=true&w=majority", tlsCAFile=ca)
-db = client.webproject_plus
+db = client.miniproject
 
 SECRET_KEY = "SPARTA_MINI_PROJECT"
 app = Flask(__name__)
@@ -182,11 +182,19 @@ def update_profile():
 
 @app.route('/get-post', methods=['POST'])
 def get_post():
-    post_id_receive = request.form['post_id_give']
-    post = db.post.find_one({"_id": ObjectId(post_id_receive)})
-    post["_id"] = str(post["_id"])
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        post_id_receive = request.form['post_id_give']
+        post = db.post.find_one({"_id": ObjectId(post_id_receive)})
+        post["_id"] = str(post["_id"])
+        count = db.likes.count_documents({"post_id": post_id_receive})
+        heart_by_me = db.likes.find_one({"_id":post_id_receive, "username": payload["id"]}) is None
 
-    return jsonify({"post": post})
+        return jsonify({"post": post, "count_heart": count, "heart_by_me": heart_by_me})
+
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        return redirect(url_for("home"))
 
 
 @app.route('/post', methods=['POST'])
@@ -286,6 +294,7 @@ def get_all_posts():
             post["count_heart"] = db.likes.count_documents({"post_id": post["_id"]})
             post["heart_by_me"] = bool(db.likes.find_one({"post_id": post["_id"], "username": payload['id']}))
             post["count_comment"] = db.comments.count_documents({"post_id": post["_id"]})
+
         return jsonify({"result": "success", "msg": "포스팅을 가져왔습니다.", "posts": posts})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         return redirect(url_for("home"))
@@ -371,7 +380,11 @@ def update_like():
             db.likes.insert_one(doc)
         else:
             db.likes.delete_one(doc)
+           
         count = db.likes.count_documents({"post_id": post_id_receive})
+
+        db.post.update_one({"_id": post_id_receive}, {"$set": {"count_heart":count}})
+
         return jsonify({"result": "success", 'msg': 'updated', "count": count})
 
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
@@ -384,8 +397,20 @@ def sort_by_likes():
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         # shows top 20 posts
-        sorted_list = list(db.likes.find({}).sort("count", -1).limit(20))
-        return jsonify({"result": "success", "msg": "포스팅을 가져왔습니다.", "posts": sorted_list})
+        post_list = list(db.post.find({}))
+
+        for post in post_list:
+            count = db.likes.count_documents({"_id": post["_id"]})
+            db.post.update_one({"id":post["_id"]}, {"$set":{"count_heart":count}})
+
+        posts = list(db.post.find({}).sort("count_heart", -1).limit(20))
+        for post in posts:
+            post["_id"] = str(post["_id"])            
+            post["count_heart"] = db.likes.count_documents({"post_id": post["_id"]})
+            post["heart_by_me"] = bool(db.likes.find_one({"post_id": post["_id"], "username": payload['id']}))
+            post["count_comment"] = db.comments.count_documents({"post_id": post["_id"]})
+
+        return jsonify({"result": "success", "msg": "포스팅을 가져왔습니다.", "posts": posts})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         return redirect(url_for("home"))
 
