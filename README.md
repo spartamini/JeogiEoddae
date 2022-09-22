@@ -19,3 +19,4 @@ Project (2022.09.19~2022.09.222)
  항해99 first Project입니다.
  이민규(github/Ming-gry), 심민기(github/shiminki), 김성호(github/Dim225)
 ```
+![img1](https://user-images.githubusercontent.com/102011853/191695123-e9cd7fac-e629-43a0-b7bf-1fd9e6374fa7.png)
