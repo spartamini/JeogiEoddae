@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 import jwt
 import datetime
 import hashlib
@@ -179,6 +180,15 @@ def update_profile():
 
 ####### POST SECTION ###########
 
+@app.route('/get-post', methods=['POST'])
+def get_post():
+    post_id_receive = request.form['post_id_give']
+    post = db.post.find_one({"_id": ObjectId(post_id_receive)})
+    post["_id"] = str(post["_id"])
+
+    return jsonify({"post": post})
+
+
 @app.route('/post', methods=['POST'])
 def add_post():
     token_receive = request.cookies.get('mytoken')
@@ -206,9 +216,15 @@ def add_post():
             'title': title_receive,
             'desc': desc_receive,
             'image': filename,
-            'time': time_receive
+            'time': time_receive,
+            'count_heart':0,
+            'count_comment':0
         }
         db.post.insert_one(doc)
+
+        post = db.post.find_one(doc)
+        print(post)
+        post['_id'] = str(post['_id'])
 
         return jsonify({'msg': '등록 완료!'})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
@@ -252,6 +268,9 @@ def post_by_user():
     post_list = list(db.post.find(
         {'username': username_receive}
     ))
+
+    for post in post_list:
+        post["_id"] = str(post["_id"])
 
     return jsonify({'post_list': post_list})
 
@@ -343,7 +362,6 @@ def update_like():
         # 좋아요 수 변경
         user_info = db.users.find_one({"username": payload["id"]})
         post_id_receive = request.form["post_id_give"]
-        type_receive = request.form["type_give"]
         action_receive = request.form["action_give"]
         doc = {
             "post_id": post_id_receive,

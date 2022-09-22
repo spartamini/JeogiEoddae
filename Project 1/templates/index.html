@@ -129,54 +129,54 @@
               let time_post = new Date(post["time"]);
               let time_before = time2str(time_post);
               let temp_html = `<div id="posts-${post["_id"]}>
-              <div class="box">
-                <article class="media">
-                  <div class="media-left"></div>
-                  <div class="media-content">
-                    <strong>${post["title"]}</strong>
-                    <br />
-                    <small>${post["location"]}</small>
-                    <figure class="image is-200x200">
-                      <img
-                        src="../static/post_images/${post["image"]}"
-                        alt="Image"
-                      />
-                    </figure>
-                    <div class="content">
-                      <p>
-                        <strong>${post["username"]}</strong>
-                         <small>${time_before}</small>
-                        <br />
-                        ${post["desc"]}
-                      </p>
-                    </div>
-                    <nav class="level is-mobile">
-                      <div class="level-left">
-                        <a
-                          class="level-item is-sparta"
-                          aria-label="heart"
-                          onclick="toggle_like('', 'heart')"
-                        >
-                          <span class="icon is-small"
-                            ><i
-                              class="fa ${heart}"
-                              aria-hidden="true"
-                            ></i></span
-                          >&nbsp;<span class="like-num">${post["count_heart"]}</span>
-                        </a>
-                        <a class="level-item" aria-label="reply">
-                          <span class="icon is-small">
-                            <i class="fa fa-comment" aria-hidden="true"></i>
-                          </span>&nbsp;<span class="like-num">${post["count_comment"]}</span>
-                        </a>
-                        
+                <div class="box">
+                  <article class="media">
+                    <div class="media-left"></div>
+                    <div class="media-content">
+                      <strong><a href="/post/${post["_id"]}">${post["title"]}</a></strong>
+                      <br />
+                      <small>${post["location"]}</small>
+                      <figure class="image is-200x200">
+                        <img
+                          src="../static/post_images/${post["image"]}"
+                          alt="Image"
+                        />
+                      </figure>
+                      <div class="content">
+                        <p>
+                          <strong><a href="/user/{{ user_info.username }}">${post["username"]}</a></strong>
+                           <small>${time_before}</small>
+                          <br />
+                          ${post["desc"]}
+                        </p>
                       </div>
-                    </nav>
-                  </div>
-                </article>
-              </div>
-            </div>`
-              $("#post-box").append(temp_html)
+                      <nav class="level is-mobile">
+                        <div class="level-left">
+                          <a
+                            class="level-item is-sparta"
+                            aria-label="heart"
+                            onclick="toggle_like('', 'heart')"
+                          >
+                            <span class="icon is-small"
+                              ><i
+                                class="fa ${heart}"
+                                aria-hidden="true"
+                              ></i></span
+                            >&nbsp;<span class="like-num">${post["count_heart"]}</span>
+                          </a>
+                          <a class="level-item" aria-label="reply">
+                            <span class="icon is-small">
+                              <i class="fa fa-comment" aria-hidden="true"></i>
+                            </span>&nbsp;<span class="like-num">${post["count_comment"]}</span>
+                          </a>
+                          
+                        </div>
+                      </nav>
+                    </div>
+                  </article>
+                </div>
+              </div>`
+                $("#post-box").append(temp_html)
             }
           },
         });
