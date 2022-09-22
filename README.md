@@ -1,6 +1,10 @@
 ## 미니 프로젝트(JeogiEoddae) ๑◕‿‿◕๑
 Project (2022.09.19~2022.09.222)
 
+![img5](https://user-images.githubusercontent.com/102011853/191699572-3344b7f2-db27-493d-9c77-89b87204e730.png)
+
+https://youtu.be/QedCkUg60GI
+
 
 #### Description
  ```
