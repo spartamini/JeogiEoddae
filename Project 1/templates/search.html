@@ -104,17 +104,21 @@
     </style>
     <script>
       $(document).ready(function () {
-        load_page()
+        load_page("{{search_query}}")
       });
       function logout() {
         $.removeCookie('mytoken');
         window.location.reload();
       }
-      function load_page() {
+      function query_search() {
+        search_query = $("#search-query").val()
+        window.location.replace("/search/" + search_query)
+      }
+      function load_page(search_query) {
         $.ajax({
-          type: "GET",
-          url: "/all-posts",
-          data: {},
+          type: "POST",
+          url: "/search",
+          data: {location_give: search_query},
           success: function (response) {
             let post_list = response["posts"];
 
@@ -212,10 +216,6 @@
             }
         });
       }
-      function query_search() {
-        search_query = $("#search-query").val()
-        window.location.replace("/search/" + search_query)
-      }
       function time2str(date) {
         let today = new Date();
         let time = (today - date) / 1000 / 60; // 분
@@ -271,9 +271,10 @@
                   class="collapse navbar-collapse"
                   id="navbarSupportedContent"
                 >
-                <input class="input is-primary" type="text" placeholder="Primary input" id="search-query">
-                <button class="button is-success is-outlined" onclick="query_search()">Search</button>
-              
+                  
+                    <input class="input is-primary" type="text" placeholder="Primary input" id="search-query">
+                    <button class="button is-success is-outlined" onclick="query_search()">Search</button>
+                  
                   <!-- Dropdown -->
                   <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="user-info">
                     <li class="nav-item dropdown">

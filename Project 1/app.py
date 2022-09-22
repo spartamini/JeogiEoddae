@@ -34,6 +34,19 @@ def home():
     except jwt.exceptions.DecodeError:
         return redirect(url_for("login", msg="로그인 정보가 존재하지 않습니다."))
 
+
+@app.route('/search/<search_query>')
+def home_with_search(search_query):
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        user_info = db.users.find_one({"username": payload["id"]})
+        return render_template('search.html', user_info=user_info, search_query=str(search_query))
+    except jwt.ExpiredSignatureError:
+        return redirect(url_for("login", msg="로그인 시간이 만료되었습니다."))
+    except jwt.exceptions.DecodeError:
+        return redirect(url_for("login", msg="로그인 정보가 존재하지 않습니다."))
+
 # msg depend on the cookie state
 @app.route('/login')
 def login():
@@ -104,7 +117,8 @@ def user_signup():
         'username' : username_receive,
         'email' : email_receive,
         'password' : password_hash,
-        'location': location_receive
+        'location': location_receive,
+        'profile_pic':"profile_picture.png"
     }
     db.users.insert_one(doc)
 
@@ -133,7 +147,7 @@ def user_login():
     if user is not None:
         payload = {
             'id': id_receive,
-            'exp': datetime.utcnow() + timedelta(seconds=60 * 60)  # remain logged in for 1 hr
+            'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 24)  # remain logged in for 1 day
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
         return jsonify({'msg': 'Login Success!', 'token': token})
@@ -183,7 +197,7 @@ def add_post():
 
         filename = f"{username_receive} - {title_receive} - {datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.{extension}"
 
-        save_to = f"static/{filename}" # dir
+        save_to = f"static/post_images/{filename}" # dir
         image.save(save_to)
 
         doc = {
@@ -201,23 +215,43 @@ def add_post():
         return redirect(url_for("home"))
 
 
-@app.route('/search', methods=['GET'])
+@app.route('/search', methods=['POST'])
 def find_location():
     location_receive = request.form['location_give']
     post_list = list(db.post.find(
-        {'location': location_receive},
-        {'_id':False})
+        {'location':  { 
+            "$regex": location_receive,
+            "$options" :'i' # case-insensitive
+            } 
+        })
     )
+    post_list2 = list(db.post.find(
+        {'title':  { 
+            "$regex": location_receive,
+            "$options" :'i' # case-insensitive
+            } 
+        })
+    )
+    post_list3 = list(db.post.find(
+        {'username':  { 
+            "$regex": location_receive,
+            "$options" :'i' # case-insensitive
+            } 
+        })
+    )
+    post_list = post_list + post_list2 + post_list3
+    
+    for post in post_list:
+        post['_id'] = str(post['_id'])
 
-    return jsonify({'msg': post_list})
+    return jsonify({'posts': post_list})
 
 @app.route('/load-profile', methods=['POST'])
 def post_by_user():
     username_receive = request.form['username_give']
     post_list = list(db.post.find(
-        {'username': username_receive},
-        {'_id':False})
-    )
+        {'username': username_receive}
+    ))
 
     return jsonify({'post_list': post_list})
 
