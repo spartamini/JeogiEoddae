@@ -218,6 +218,10 @@
           });
         }
       }
+      function query_search() {
+        search_query = $("#search-query").val()
+        window.location.replace("/search/" + search_query)
+      }
 
     </script>
     </head>
@@ -245,17 +249,9 @@
                   class="collapse navbar-collapse"
                   id="navbarSupportedContent"
                 >
-                  <form class="d-flex" role="search">
-                    <input
-                      class="form-control me-2"
-                      type="search"
-                      placeholder="Search"
-                      aria-label="Search"
-                    />
-                    <button class="btn btn-outline-success" type="submit">
-                      Search
-                    </button>
-                  </form>
+                <input class="input is-primary" type="text" placeholder="Primary input" id="search-query">
+                <button class="button is-success is-outlined" onclick="query_search()">Search</button>
+              
                   <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="user-info">
                     <li class="nav-item dropdown">
                       <a
