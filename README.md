@@ -7,24 +7,18 @@ Project (2022.09.19~2022.09.222)
  
  사용자들이 실제로 다녀온 여행지 정보 공유!
  ```
- 
- <img src="https://img.shields.io/badge/Scss-green?style=flat&logo=Sass&logoColor=CC6699"/>
- 
+  
  #### Tech Requirement (Tech Stack)
- ```
- HTML5 / CSS3 /Javascript
- <img src="https://img.shields.io/badge/Scss-green?style=flat&logo=Sass&logoColor=E34F26"/>
 
- Python (flask / jinja2)
-
- JWT 인증
-
- jQuery
-
- AWS
-
- MongoDB Atlas
- ```
+ <img src="https://img.shields.io/badge/CSS3-CC6699?style=flat&logo=Sass&logoColor=white"/>
+ <img src="https://img.shields.io/badge/Javascript-F7DF1E?style=flat&logo=Sass&logoColor=white"/>
+ <img src="https://img.shields.io/badge/Python-3776AB?style=flat&logo=Sass&logoColor=white"/>
+ <img src="https://img.shields.io/badge/flask-000000?style=flat&logo=Sass&logoColor=white"/>
+ <img src="https://img.shields.io/badge/jinja2-B41717?style=flat&logo=Sass&logoColor=white"/>
+ <img src="https://img.shields.io/badge/JWT-green?style=flat&logo=Sass&logoColor=white"/>
+ <img src="https://img.shields.io/badge/jQuery-0769AD?style=flat&logo=Sass&logoColor=white"/>
+ <img src="https://img.shields.io/badge/Amazon AWS-232F3E?style=flat&logo=Sass&logoColor=white"/>
+ <img src="https://img.shields.io/badge/MongoDB-47A248?style=flat&logo=Sass&logoColor=white"/>
 
 #### Contributors
 ```
